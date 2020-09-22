@@ -1,10 +1,14 @@
 import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
 
 public class MainClass extends PApplet {
     public static void main(String[] args) {
         PApplet.main("MainClass", args);
     }
 
+    PVector posistion;
+    PVector grote;
     boolean erIsEenWinner;
     byte[][] game;
     final byte NIEMAND = 0;
@@ -17,12 +21,13 @@ public class MainClass extends PApplet {
     public void settings() {
         size(400, 400);
         smooth(8);
-
     }
 
     @Override
     public void setup() {
         resetSpel();
+        posistion = new PVector(100, 100);
+        grote = new PVector(800, 800);
         surface.setTitle("Boter Kaas en Eieren");
     }
 
@@ -51,14 +56,16 @@ public class MainClass extends PApplet {
     @Override
     public void mousePressed() {
         if (!erIsEenWinner) {
-            int[] arr = mousepostion();
-            if (game[arr[0]][arr[1]] == NIEMAND) {
-                game[arr[0]][arr[1]] = playerOneAanDeberut ? PLAYERONE : PLAYERTWOO;
-                playerOneAanDeberut = !playerOneAanDeberut;
-                beurtenover--;
+            Paar paar = mousepostion();
+            if (paar != null) {
+                if (game[paar.getX()][paar.getY()] == NIEMAND) {
+                    game[paar.getX()][paar.getY()] = playerOneAanDeberut ? PLAYERONE : PLAYERTWOO;
+                    playerOneAanDeberut = !playerOneAanDeberut;
+                    beurtenover--;
+                }
             }
         } else {
-            if (mouseX >= width / 3f && mouseX < width / 3f * 2 && mouseY >= height / 3f && mouseY < height / 3f * 2) {
+            if (mouseX >= posistion.x + (grote.x / 3f) && mouseX < posistion.x + (grote.x / 3f) * 2 && mouseY >= posistion.y + (grote.y / 3f) && mouseY < posistion.y + (grote.y / 3f) * 2) {
                 resetSpel();
             }
         }
@@ -81,14 +88,14 @@ public class MainClass extends PApplet {
     private void displayWinner(byte winner) {
         push();
         rectMode(CENTER);
-        rect(width / 2f, height / 2f, width / 5f, height / 5f);
+        rect(posistion.x + grote.x / 2f, posistion.y + grote.y / 2f, grote.x / 5f, grote.y / 5f);
         textSize(32);
         textAlign(CENTER, CENTER);
         fill(255);
         if (winner == NIEMAND) {
-            text("Tie", width / 2f, height / 2f);
+            text("Tie", posistion.x + grote.x / 2f, posistion.y + grote.y / 2f);
         } else {
-            text(winner == 1 ? "kruis" : "kring", width / 2f, height / 2f);
+            text(winner == 1 ? "kruis" : "kring", posistion.x + grote.x / 2f, posistion.y + grote.y / 2f);
         }
 
         pop();
@@ -114,14 +121,14 @@ public class MainClass extends PApplet {
         return NIEMAND;
     }
 
-    public int[] mousepostion() {
-        for (int i = 0; i < 3; i++) {
-            if (mouseX >= 0 && mouseX < width / 3f + width / 3f * i) {
-                for (int j = 0; j < 3; j++) {
-                    if (mouseY >= 0 && mouseY < height / 3f + height / 3f * j) {
+    public Paar mousepostion() {
+        for (byte i = 0; i < 3; i++) {
+            if (mouseX >= posistion.x && mouseX < posistion.x + (grote.x / 3f) + (grote.x / 3f) * i) {
+                for (byte j = 0; j < 3; j++) {
+                    if (mouseY >= posistion.y && mouseY < posistion.y + (grote.y / 3f) + (grote.y / 3f) * j) {
                         fill(255, 0, 0);
                         noStroke();
-                        return new int[]{i, j};
+                        return new Paar(i, j);
                     }
                 }
             }
@@ -133,11 +140,12 @@ public class MainClass extends PApplet {
         push();
         rectMode(CENTER);
         fill(0, 255, 0);
-        translate((width / 6f) + (width / 3f * x), (height / 6f) + (height / 3f * y));
+        noStroke();
+        translate(posistion.x + (grote.x / 6f) + (grote.x / 3f * x), posistion.y + (grote.y / 6f) + (grote.y / 3f * y));
         rotate(radians(45));
-        rect(0, 0, 90, 20);
+        rect(0, 0, grote.x / 3f, grote.y / 18f);
         rotate(radians(90));
-        rect(0, 0, 90, 20);
+        rect(0, 0, grote.x / 3f, grote.y / 18f);
         pop();
     }
 
@@ -145,11 +153,11 @@ public class MainClass extends PApplet {
         push();
         ellipseMode(CENTER);
         fill(0, 0, 255);
-        translate((width / 6f) + (width / 3f * x), (height / 6f) + (height / 3f * y));
+        translate(posistion.x + (grote.x / 6f) + (grote.x / 3f * x), posistion.y + (grote.y / 6f) + (grote.y / 3f * y));
         stroke(0, 0, 255);
-        strokeWeight(15);
+        strokeWeight(grote.x / 20f);
         noFill();
-        circle(0, 0, 90);
+        circle(0, 0, grote.x / 4f);
         pop();
     }
 
@@ -157,8 +165,8 @@ public class MainClass extends PApplet {
         stroke(0);
         fill(0);
         for (int i = 1; i < 3; i++) {
-            line(width / 3f * i, 0, width / 3f * i, height);
-            line(0, height / 3f * i, width, height / 3f * i);
+            line(posistion.x + (grote.x / 3f) * i, posistion.y, posistion.x + (grote.x / 3f) * i, posistion.y + (grote.y));
+            line(posistion.x, posistion.y + (grote.y / 3f) * i, posistion.x + grote.x, posistion.y + (grote.y / 3f) * i);
         }
 
     }
