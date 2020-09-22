@@ -162,5 +162,22 @@ public class MainClass extends PApplet {
         }
 
     }
+
+    static final class Paar {
+        byte x, y;
+
+        Paar(byte i, byte j) {
+            x = i;
+            y = j;
+        }
+
+        byte getX() {
+            return x;
+        }
+
+        byte getY() {
+            return y;
+        }
+    }
 }
 
