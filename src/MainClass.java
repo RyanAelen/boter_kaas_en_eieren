@@ -6,6 +6,7 @@ public class MainClass extends PApplet {
         PApplet.main("MainClass", args);
     }
 
+    byte rows = 3;
     PVector posistion;
     PVector grote;
     boolean erIsEenWinner;
@@ -25,8 +26,8 @@ public class MainClass extends PApplet {
     @Override
     public void setup() {
         resetSpel();
-        posistion = new PVector(100, 100);
-        grote = new PVector(800, 800);
+        posistion = new PVector(0, 0);
+        grote = new PVector(width, height);
         surface.setTitle("Boter Kaas en Eieren");
     }
 
@@ -35,8 +36,8 @@ public class MainClass extends PApplet {
         background(255);
         tekenraster();
         mousepostion();
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < rows; j++) {
                 if (game[i][j] == PLAYERONE) {
                     tekenKruis(i, j);
                 } else if (game[i][j] == PLAYERTWOO) {
@@ -54,8 +55,8 @@ public class MainClass extends PApplet {
 
     @Override
     public void mousePressed() {
+        Paar paar = mousepostion();
         if (!erIsEenWinner) {
-            Paar paar = mousepostion();
             if (paar != null) {
                 if (game[paar.getX()][paar.getY()] == NIEMAND) {
                     game[paar.getX()][paar.getY()] = playerOneAanDeberut ? PLAYERONE : PLAYERTWOO;
@@ -64,8 +65,13 @@ public class MainClass extends PApplet {
                 }
             }
         } else {
-            if (mouseX >= posistion.x + (grote.x / 3f) && mouseX < posistion.x + (grote.x / 3f) * 2 && mouseY >= posistion.y + (grote.y / 3f) && mouseY < posistion.y + (grote.y / 3f) * 2) {
-                resetSpel();
+            if (paar != null) {
+                if ((rows % 2 == 0) && ((paar.getX() == rows / 2) || (paar.getX() == rows / 2 - 1)) && ((paar.getY() == rows / 2) || (paar.getY() == rows / 2 - 1))) {
+                    print(rows);
+                    resetSpel();
+                } else if (rows / 2 == paar.getX() && rows / 2 == paar.getY()) {
+                    resetSpel();
+                }
             }
         }
         if (checkWinner() != NIEMAND) {
@@ -78,10 +84,10 @@ public class MainClass extends PApplet {
     }
 
     private void resetSpel() {
-        game = new byte[3][3];
+        game = new byte[rows][rows];
         playerOneAanDeberut = true;
         erIsEenWinner = false;
-        beurtenover = 9;
+        beurtenover = (byte) ((int) rows * (int) rows);
     }
 
     private void displayWinner(byte winner) {
@@ -105,13 +111,13 @@ public class MainClass extends PApplet {
      * @return 1 of 2 bij winner 0 bij geen winner
      */
     private byte checkWinner() {
-        for (int i = 1; i < 3; i++) {
+        for (int i = 1; i < rows; i++) {
 //            check diogonaal
             if ((game[0][0] == i && game[1][1] == i && game[2][2] == i) || (game[2][0] == i && game[1][1] == i && game[0][2] == i)) {
                 return (byte) i;
             }
 //            check horisontaal en vertiekaal
-            for (int j = 0; j < 3; j++) {
+            for (int j = 0; j < rows; j++) {
                 if ((game[j][0] == i && game[j][1] == i && game[j][2] == i) || (game[0][j] == i && game[1][j] == i && game[2][j] == i)) {
                     return (byte) i;
                 }
@@ -121,10 +127,10 @@ public class MainClass extends PApplet {
     }
 
     public Paar mousepostion() {
-        for (byte i = 0; i < 3; i++) {
-            if (mouseX >= posistion.x && mouseX < posistion.x + (grote.x / 3f) + (grote.x / 3f) * i) {
-                for (byte j = 0; j < 3; j++) {
-                    if (mouseY >= posistion.y && mouseY < posistion.y + (grote.y / 3f) + (grote.y / 3f) * j) {
+        for (byte i = 0; i < rows; i++) {
+            if (mouseX >= posistion.x && mouseX < posistion.x + (grote.x / rows) + (grote.x / rows) * i) {
+                for (byte j = 0; j < rows; j++) {
+                    if (mouseY >= posistion.y && mouseY < posistion.y + (grote.y / rows) + (grote.y / rows) * j) {
                         fill(255, 0, 0);
                         noStroke();
                         return new Paar(i, j);
@@ -140,11 +146,11 @@ public class MainClass extends PApplet {
         rectMode(CENTER);
         fill(0, 255, 0);
         noStroke();
-        translate(posistion.x + (grote.x / 6f) + (grote.x / 3f * x), posistion.y + (grote.y / 6f) + (grote.y / 3f * y));
+        translate(posistion.x + (grote.x / ((float) rows * 2)) + (grote.x / rows * x), posistion.y + (grote.y / ((float) rows * 2)) + (grote.y / rows * y));
         rotate(radians(45));
-        rect(0, 0, grote.x / 3f, grote.y / 18f);
+        rect(0, 0, grote.x / rows, grote.y / ((float) rows * 6));
         rotate(radians(90));
-        rect(0, 0, grote.x / 3f, grote.y / 18f);
+        rect(0, 0, grote.x / rows, grote.y / ((float) rows * 6));
         pop();
     }
 
@@ -152,20 +158,20 @@ public class MainClass extends PApplet {
         push();
         ellipseMode(CENTER);
         fill(0, 0, 255);
-        translate(posistion.x + (grote.x / 6f) + (grote.x / 3f * x), posistion.y + (grote.y / 6f) + (grote.y / 3f * y));
+        translate(posistion.x + (grote.x / ((float) rows * 2)) + (grote.x / rows * x), posistion.y + (grote.y / ((float) rows * 2)) + (grote.y / rows * y));
         stroke(0, 0, 255);
-        strokeWeight(grote.x / 20f);
+        strokeWeight(grote.x / ((float) rows * (20f / 3f)));
         noFill();
-        circle(0, 0, grote.x / 4f);
+        circle(0, 0, grote.x / ((float) rows * (4f / 3f)));
         pop();
     }
 
     public void tekenraster() {
         stroke(0);
         fill(0);
-        for (int i = 1; i < 3; i++) {
-            line(posistion.x + (grote.x / 3f) * i, posistion.y, posistion.x + (grote.x / 3f) * i, posistion.y + (grote.y));
-            line(posistion.x, posistion.y + (grote.y / 3f) * i, posistion.x + grote.x, posistion.y + (grote.y / 3f) * i);
+        for (int i = 1; i < rows; i++) {
+            line(posistion.x + (grote.x / rows) * i, posistion.y, posistion.x + (grote.x / rows) * i, posistion.y + (grote.y));
+            line(posistion.x, posistion.y + (grote.y / rows) * i, posistion.x + grote.x, posistion.y + (grote.y / rows) * i);
         }
 
     }
